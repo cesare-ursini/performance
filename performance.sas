@@ -1,6 +1,5 @@
 %let CASLIB=CASUSER;
 %let TAB=INPUT_TAB;
-%let MAX_OBS=1000;
 
 %macro model_perf;
 
@@ -12,7 +11,7 @@
 	%put Downloading dataset ...;
 	
 	proc http
-	   url='https://support.sas.com/documentation/onlinedoc/viya/exampledatasets/creditscores.csv'
+	   url="&csv_url."
 	   out=scrdata;                                     
 	run;
 	
@@ -28,9 +27,9 @@
 	
 	filename scrdata clear;
 
-    %put Vengono selezionate massimo &MAX_OBS. osservazioni.;
+    %put Vengono selezionate massimo &max_obs. osservazioni.;
 
-    proc surveyselect   data=&CASLIB..&TAB. method=srs n=&MAX_OBS.
+    proc surveyselect   data=&CASLIB..&TAB. method=srs n=&max_obs.
                         out=&CASLIB..MODEL seed=55555;
     run;
 
@@ -48,7 +47,7 @@
 
     %let _edtm=%sysfunc(datetime());
     %let _runtm=%sysfunc(putn(&_edtm - &_sdtm, 12.4));
-    %put %sysfunc(putn(&_sdtm, datetime20.)) - Tempo esecuzione per &n_obs. osservazioni: &_runtm secondi;
+    %put %sysfunc(putn(&_sdtm, datetime20.)) - Tempo esecuzione per &max_obs. osservazioni: &_runtm secondi;
 	
     /*** RF ***/		
     /*** ... ***/
