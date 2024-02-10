@@ -5,7 +5,7 @@
 %macro model_perf;
 
     cas;
-    cas _all_ assign;
+    caslib _all_ assign;
 
 	filename scrdata temp;
 	
