@@ -1,8 +1,11 @@
 %let CASLIB=CASUSER;
-%let TAB=MODEL_TAB;
-
+%let TAB=INPUT_TAB;
+%let MAX_OBS=1000;
 
 %macro model_perf;
+
+    cas;
+    cas _all_ assign;
 
 	filename scrdata temp;
 	
@@ -25,36 +28,33 @@
 	
 	filename scrdata clear;
 
-	%let max_iter=3;
-	/* limite n osservazioni con print n obs in dataset e un unico ciclo*/
-	%do _i=1 %to &max_iter.;
-	
-		%let n_obs=%sysevalf(10**&_i.);
-	
-		proc surveyselect data=&CASLIB..&TAB. method=srs n=&n_obs.
-		                  out=&CASLIB..GB seed=55555;
-		run;
-	
-		%let _sdtm=%sysfunc(datetime());
-	
-		/*** GB ***/
-		proc gradboost data=&CASLIB..GB seed=55555 noprint;
-		   input Age Credit_Score Income Number_of_Open_Credit_Cards Payment_History Region_FIPS State_FIPS Total_Debt Zipcode / level = interval;
-		   target state /level=nominal;
-		   output out=&CASLIB..score_at_runtime;
-		run;
+    %put Vengono selezionate massimo &MAX_OBS. osservazioni.;
 
-		/*** RF ***/		
-		/*** ... ***/
+    proc surveyselect   data=&CASLIB..&TAB. method=srs n=&MAX_OBS.
+                        out=&CASLIB..MODEL seed=55555;
+    run;
 
-		%let _edtm=%sysfunc(datetime());
-		%let _runtm=%sysfunc(putn(&_edtm - &_sdtm, 12.4));
-		%put %sysfunc(putn(&_sdtm, datetime20.)) - Tempo esecuzione per &n_obs. osservazioni: &_runtm secondi;
+    proc delete data=&CASLIB..&TAB.;
+    run;
+
+    /*** GB ***/
+    %let _sdtm=%sysfunc(datetime());
+
+    proc gradboost data=&CASLIB..MODEL seed=55555 noprint;
+        input Age Credit_Score Income Number_of_Open_Credit_Cards Payment_History Region_FIPS State_FIPS Total_Debt Zipcode / level = interval;
+        target state /level=nominal;
+        /*output out=&CASLIB..score_at_runtime;*/
+    run;
+
+    %let _edtm=%sysfunc(datetime());
+    %let _runtm=%sysfunc(putn(&_edtm - &_sdtm, 12.4));
+    %put %sysfunc(putn(&_sdtm, datetime20.)) - Tempo esecuzione per &n_obs. osservazioni: &_runtm secondi;
 	
-		proc delete data=&CASLIB..GB;
-		run;
-	
-	%end;
+    /*** RF ***/		
+    /*** ... ***/
+
+    proc delete data=&CASLIB..MODEL;
+    run;
 
 %mend;
 %model_perf;
