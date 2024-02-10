@@ -1,2 +1,3 @@
 /.venv
-/sascfg_personal.py
+sascfg_personal.py
+.authinfo

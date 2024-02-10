@@ -7,5 +7,5 @@ c = sas.submit('''
 filename infile URL "https://raw.githubusercontent.com/cesare-ursini/performance/main/performance.sas";
 %include infile / source2;
 ''')
-print(sas.lastlog())
+
 sas.endsas()
