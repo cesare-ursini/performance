@@ -1,2 +1,2 @@
-.venv/*
-./sascfg_personal.py
+/.venv
+sascfg_personal.py
