@@ -18,31 +18,47 @@
 	%put Dataset Downloaded;
 	
 	proc cas;
-	   upload
-	      path="%sysfunc(pathname(scrdata))"
-	      casOut={caslib="&CASLIB.", name="&TAB.", replace=TRUE}
-	      importOptions="csv";
+		upload
+			path="%sysfunc(pathname(scrdata))"
+			casOut={caslib="&CASLIB.", name="&TAB.", replace=TRUE}
+			importOptions="csv";
+	run;
+		simple.numRows result=rows  table={caslib="&CASLIB.",name="&TAB." } ; 
+		call symputx("nrows",rows.numrows);
 	run;
 	quit;
 	
 	filename scrdata clear;
 
-    %put Vengono selezionate massimo &max_obs. osservazioni.;
+	%put Il numero di osservazioni nel dataset &nrows.;
+	%put Il limite massimo di osservazioni per il test &max_obs.;
 
-    proc surveyselect   data=&CASLIB..&TAB. method=srs n=&max_obs.
-                        out=&CASLIB..MODEL seed=55555;
-    run;
+	%if %sysevalf(&nrows.>&max_obs.) %then %do;
+		%put Le osservazioni del dataset  superano il numero massimo consentito.
+		%put Il dataset verrà filtrato.
 
-    proc delete data=&CASLIB..&TAB.;
-    run;
+		%let MODEL_TAB=MODEL;
+
+	    proc surveyselect   data=&CASLIB..&TAB. method=srs n=&max_obs.
+	                        out=&CASLIB..&MODEL_TAB. seed=55555 noprint;
+	    run;
+		
+	    proc delete data=&CASLIB..&TAB.;
+	    run;
+	%end;
+	%else %do;
+		%put Le osservazioni del dataset non superano il numero massimo consentito.
+		%put Tutte le osservazioni disponibili verranno utilizzate.
+
+		%let MODEL_TAB=&TAB.;
+	%end;
 
     /*** GB ***/
     %let _sdtm=%sysfunc(datetime());
 
-    proc gradboost data=&CASLIB..MODEL seed=55555 noprint;
-        input Age Credit_Score Income Number_of_Open_Credit_Cards Payment_History Region_FIPS State_FIPS Total_Debt Zipcode / level = interval;
+    proc gradboost data=&CASLIB..&MODEL_TAB. seed=55555 noprint;
+        input _numeric_ / level = interval;
         target state /level=nominal;
-        /*output out=&CASLIB..score_at_runtime;*/
     run;
 
     %let _edtm=%sysfunc(datetime());
@@ -52,7 +68,7 @@
     /*** RF ***/		
     /*** ... ***/
 
-    proc delete data=&CASLIB..MODEL;
+    proc delete data=&CASLIB..&MODEL_TAB.;
     run;
 
 %mend;
