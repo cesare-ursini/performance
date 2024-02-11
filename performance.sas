@@ -70,7 +70,7 @@
     /*** RF ***/
 	%let _sdtm=%sysfunc(datetime());
 
-    proc gradboost data=&CASLIB..&MODEL_TAB. seed=55555 noprint;
+    proc forest data=&CASLIB..&MODEL_TAB. seed=55555 noprint;
         input _numeric_ / level = interval;
         target state /level=nominal;
     run;

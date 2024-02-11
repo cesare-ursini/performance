@@ -24,9 +24,9 @@ sas.symput("max_obs", max_obs)
 
 #Submit del codice principale
 sub = sas.submitLOG('''
-filename infile URL "&source_url.";
-%include infile / source2;
-''')
+                        filename infile URL "&source_url.";
+                        %include infile / source2;
+                    ''')
 
 #Chiusura sessione SAS
 sas.endsas()
