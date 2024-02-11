@@ -7,7 +7,8 @@ import saspy
 source_url="https://raw.githubusercontent.com/cesare-ursini/performance/main/performance.sas"
 
 #URL del dataset CSV da utilizzare per il test
-csv_url="https://support.sas.com/documentation/onlinedoc/viya/exampledatasets/creditscores.csv"
+#csv_url="https://support.sas.com/documentation/onlinedoc/viya/exampledatasets/creditscores.csv"
+csv_url="https://raw.githubusercontent.com/cesare-ursini/performance/main/poker_hand.csv"
 
 #Numero massimo di osservazioni da utilzzare per il test
 max_obs=1000
