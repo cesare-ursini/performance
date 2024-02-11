@@ -34,8 +34,8 @@
 	%put Il limite massimo di osservazioni per il test &max_obs.;
 
 	%if %sysevalf(&NROWS.>&max_obs.) %then %do;
-		%put Le osservazioni del dataset  superano il numero massimo consentito.;
-		%put Il dataset verrà filtrato.;
+		%put Le osservazioni del dataset superano il numero massimo consentito;
+		%put Il dataset verrà filtrato;
 
 		%let MODEL_TAB=MODEL;
         %let MODEL_NOBS=&max_obs.;
@@ -48,8 +48,8 @@
 	    run;
 	%end;
 	%else %do;
-		%put Le osservazioni del dataset non superano il numero massimo consentito.;
-		%put Tutte le osservazioni disponibili verranno utilizzate.;
+		%put Le osservazioni del dataset non superano il numero massimo consentito;
+		%put Tutte le osservazioni disponibili verranno utilizzate;
 
 		%let MODEL_TAB=&TAB.;
         %let MODEL_NOBS=&NROWS.;
@@ -65,13 +65,21 @@
 
     %let _edtm=%sysfunc(datetime());
     %let _runtm=%sysfunc(putn(&_edtm - &_sdtm, 12.4));
-    %put %sysfunc(putn(&_sdtm, datetime20.)) - Tempo esecuzione per &MODEL_NOBS. osservazioni: &_runtm secondi;
+    %put %sysfunc(putn(&_sdtm, datetime20.)) - GB - Tempo esecuzione per &MODEL_NOBS. osservazioni: &_runtm secondi;
 	
-    /*** RF ***/		
-    /*** ... ***/
+    /*** RF ***/
+	%let _sdtm=%sysfunc(datetime());
+
+    proc gradboost data=&CASLIB..&MODEL_TAB. seed=55555 noprint;
+        input _numeric_ / level = interval;
+        target state /level=nominal;
+    run;
+
+    %let _edtm=%sysfunc(datetime());
+    %let _runtm=%sysfunc(putn(&_edtm - &_sdtm, 12.4));
+    %put %sysfunc(putn(&_sdtm, datetime20.)) - RF - Tempo esecuzione per &MODEL_NOBS. osservazioni: &_runtm secondi;
 
     proc delete data=&CASLIB..&MODEL_TAB.;
     run;
-
 %mend;
 %model_perf;
