@@ -24,22 +24,23 @@
 			importOptions="csv";
 	run;
 		simple.numRows result=rows  table={caslib="&CASLIB.",name="&TAB." } ; 
-		call symputx("nrows",rows.numrows);
+		call symputx("NROWS",rows.numrows);
 	run;
 	quit;
 	
 	filename scrdata clear;
 
-	%put Il numero di osservazioni nel dataset &nrows.;
+	%put Il numero di osservazioni nel dataset &NROWS.;
 	%put Il limite massimo di osservazioni per il test &max_obs.;
 
-	%if %sysevalf(&nrows.>&max_obs.) %then %do;
+	%if %sysevalf(&NROWS.>&max_obs.) %then %do;
 		%put Le osservazioni del dataset  superano il numero massimo consentito.;
 		%put Il dataset verrà filtrato.;
 
 		%let MODEL_TAB=MODEL;
+        %let MODEL_NOBS=&max_obs.;
 
-	    proc surveyselect   data=&CASLIB..&TAB. method=srs n=&max_obs.
+	    proc surveyselect   data=&CASLIB..&TAB. method=srs n=&MODEL_NOBS.
 	                        out=&CASLIB..&MODEL_TAB. seed=55555 noprint;
 	    run;
 		
@@ -51,6 +52,7 @@
 		%put Tutte le osservazioni disponibili verranno utilizzate.;
 
 		%let MODEL_TAB=&TAB.;
+        %let MODEL_NOBS=&NROWS.;
 	%end;
 
     /*** GB ***/
@@ -63,7 +65,7 @@
 
     %let _edtm=%sysfunc(datetime());
     %let _runtm=%sysfunc(putn(&_edtm - &_sdtm, 12.4));
-    %put %sysfunc(putn(&_sdtm, datetime20.)) - Tempo esecuzione per &max_obs. osservazioni: &_runtm secondi;
+    %put %sysfunc(putn(&_sdtm, datetime20.)) - Tempo esecuzione per &MODEL_NOBS. osservazioni: &_runtm secondi;
 	
     /*** RF ***/		
     /*** ... ***/
