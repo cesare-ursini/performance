@@ -59,8 +59,8 @@
     %let _sdtm=%sysfunc(datetime());
 
     proc gradboost data=&CASLIB..&MODEL_TAB. seed=55555 noprint;
-        input _numeric_ / level = interval;
-        target state /level=nominal;
+        input S1 C1 S2 C2 S3 C3 S4 C4 S5 C5 / level = interval;
+        target P / level=nominal;
     run;
 
     %let _edtm=%sysfunc(datetime());
@@ -71,8 +71,8 @@
 	%let _sdtm=%sysfunc(datetime());
 
     proc forest data=&CASLIB..&MODEL_TAB. seed=55555 noprint;
-        input _numeric_ / level = interval;
-        target state /level=nominal;
+        input S1 C1 S2 C2 S3 C3 S4 C4 S5 C5 / level = interval;
+        target P / level=nominal;
     run;
 
     %let _edtm=%sysfunc(datetime());
