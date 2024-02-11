@@ -34,8 +34,8 @@
 	%put Il limite massimo di osservazioni per il test &max_obs.;
 
 	%if %sysevalf(&nrows.>&max_obs.) %then %do;
-		%put Le osservazioni del dataset  superano il numero massimo consentito.
-		%put Il dataset verrà filtrato.
+		%put Le osservazioni del dataset  superano il numero massimo consentito.;
+		%put Il dataset verrà filtrato.;
 
 		%let MODEL_TAB=MODEL;
 
@@ -47,8 +47,8 @@
 	    run;
 	%end;
 	%else %do;
-		%put Le osservazioni del dataset non superano il numero massimo consentito.
-		%put Tutte le osservazioni disponibili verranno utilizzate.
+		%put Le osservazioni del dataset non superano il numero massimo consentito.;
+		%put Tutte le osservazioni disponibili verranno utilizzate.;
 
 		%let MODEL_TAB=&TAB.;
 	%end;
