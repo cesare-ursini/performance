@@ -3,7 +3,7 @@
 
 %macro model_perf;
 
-    cas;
+    cas casauto sessopts=(maxtablemem="1G");
     caslib _all_ assign;
 
 	filename scrdata temp;
