@@ -38,12 +38,18 @@
 		%put Il dataset verrà filtrato;
 
 		%let MODEL_TAB=MODEL;
-        %let MODEL_NOBS=&max_obs.;
+        %let MODEL_PERC=%sysevalf((&max_obs./&NROWS.)*100, floor);
 
-	    proc surveyselect   data=&CASLIB..&TAB. method=srs n=&MODEL_NOBS.
-	                        out=&CASLIB..&MODEL_TAB. seed=55555 noprint;
+	    proc partition data=&CASLIB..&TAB seed=55555 samppct=&MODEL_PERC.;
+			output out=&CASLIB..&MODEL_TAB.;
 	    run;
 		
+		proc cas;
+			simple.numRows result=rows  table={caslib="&CASLIB.",name="&MODEL_TAB." } ; 
+			call symputx("MODEL_NOBS",rows.numrows);
+		run;
+		quit;
+
 	    proc delete data=&CASLIB..&TAB.;
 	    run;
 	%end;
@@ -68,7 +74,7 @@
     %put %sysfunc(putn(&_sdtm, datetime20.)) - GB - Tempo esecuzione per &MODEL_NOBS. osservazioni: &_runtm secondi;
 	
     /*** RF ***/
-	%let _sdtm=%sysfunc(datetime());
+	/*%let _sdtm=%sysfunc(datetime());
 
     proc forest data=&CASLIB..&MODEL_TAB. seed=55555 noprint;
         input S1 C1 S2 C2 S3 C3 S4 C4 S5 C5 / level = interval;
@@ -78,7 +84,32 @@
     %let _edtm=%sysfunc(datetime());
     %let _runtm=%sysfunc(putn(&_edtm - &_sdtm, 12.4));
     %put %sysfunc(putn(&_sdtm, datetime20.)) - RF - Tempo esecuzione per &MODEL_NOBS. osservazioni: &_runtm secondi;
+	*/
 
+	/*** NN ***/
+
+    proc delete data=&CASLIB..NN;
+    run;
+
+	%let _sdtm=%sysfunc(datetime());
+
+    proc nnet data=&CASLIB..&MODEL_TAB. standardize=midrange missing=mean;
+		architecture mlp;
+		optimization algorithm=lbfgs seed=55555 maxiter=500;
+        input S1 C1 S2 C2 S3 C3 S4 C4 S5 C5 / level = interval;
+        target P / level=nominal;
+		hidden 10;
+		hidden 10;
+		hidden 10;
+		hidden 10;
+		hidden 10;
+		train outmodel=&CASLIB..NN seed=55555 numtries=10;
+    run;
+
+    %let _edtm=%sysfunc(datetime());
+    %let _runtm=%sysfunc(putn(&_edtm - &_sdtm, 12.4));
+    %put %sysfunc(putn(&_sdtm, datetime20.)) - NN - Tempo esecuzione per &MODEL_NOBS. osservazioni: &_runtm secondi;
+	
     proc delete data=&CASLIB..&MODEL_TAB.;
     run;
 %mend;
