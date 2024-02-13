@@ -38,7 +38,7 @@
 		%put Il dataset verrà filtrato;
 
 		%let MODEL_TAB=MODEL;
-        %let MODEL_PERC=%sysevalf((&max_obs./&NROWS.)*100, floor);
+        %let MODEL_PERC=%sysevalf((&max_obs./&NROWS.)*100);
 
 	    proc partition data=&CASLIB..&TAB seed=55555 samppct=&MODEL_PERC.;
 			output out=&CASLIB..&MODEL_TAB.;
