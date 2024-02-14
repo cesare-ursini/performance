@@ -103,7 +103,7 @@
 		hidden 10;
 		hidden 10;
 		hidden 10;
-		train outmodel=&CASLIB..NN seed=55555 numtries=5;
+		train outmodel=&CASLIB..NN seed=55555 numtries=10;
     run;
 
     %let _edtm=%sysfunc(datetime());
